@@ -24,17 +24,6 @@ import sys
 from datetime import datetime, timedelta
 from collections import OrderedDict
 
-
-def _force_utf8_stdio():
-    for stream in (sys.stdout, sys.stderr):
-        try:
-            stream.reconfigure(encoding='utf-8', errors='replace')
-        except Exception:
-            pass
-
-
-_force_utf8_stdio()
-
 # ============================================================
 # 配置
 # ============================================================
@@ -95,14 +84,14 @@ def fetch_prices_curl(ticker, days=120):
 def load_fundamentals():
     """加载基本面数据"""
     if os.path.exists(FUND_FILE):
-        with open(FUND_FILE, encoding='utf-8') as f:
+        with open(FUND_FILE, encoding="utf-8") as f:
             return json.load(f)
     return {}
 
 
 def save_fundamentals(data):
     os.makedirs(DATA_DIR, exist_ok=True)
-    with open(FUND_FILE, "w", encoding='utf-8') as f:
+    with open(FUND_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 
@@ -409,4 +398,6 @@ def main():
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
     main()

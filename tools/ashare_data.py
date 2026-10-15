@@ -23,17 +23,6 @@ from decimal import Decimal, ROUND_HALF_EVEN
 _TIMEOUT = 15
 
 
-def _force_utf8_stdio():
-    for stream in (sys.stdout, sys.stderr):
-        try:
-            stream.reconfigure(encoding='utf-8', errors='replace')
-        except Exception:
-            pass
-
-
-_force_utf8_stdio()
-
-
 def _curl(url):
     """用 curl --noproxy 直连，绕过系统代理。"""
     result = subprocess.run(
@@ -106,6 +95,7 @@ def _parse_qq_quote(raw: str) -> dict:
         # 注意：腾讯 ~ 分隔协议第 47/48 位是当日涨停价/跌停价，不是 52 周极值（issue #70）
         "limit_up": fields[47] if len(fields) > 47 else "-",
         "limit_down": fields[48] if len(fields) > 48 else "-",
+        "total_shares": fields[38] if len(fields) > 38 else "-",  # will recalculate
     }
 
 
@@ -302,11 +292,7 @@ def cmd_financials(code: str):
         if eps is not None:
             print(f"  基本每股收益:   {eps}")
         if bps is not None:
-            try:
-                bps_str = f"{float(bps):.2f}"
-            except (ValueError, TypeError):
-                bps_str = str(bps)
-            print(f"  每股净资产:     {bps_str}")
+            print(f"  每股净资产:     {bps:.2f}")
         if roe is not None:
             print(f"  ROE(加权):      {_fmt_pct(roe)}")
 
@@ -379,4 +365,6 @@ def main():
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
     main()

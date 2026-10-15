@@ -40,17 +40,6 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 
 
-def _force_utf8_stdio():
-    for stream in (sys.stdout, sys.stderr):
-        try:
-            stream.reconfigure(encoding='utf-8', errors='replace')
-        except Exception:
-            pass
-
-
-_force_utf8_stdio()
-
-
 def is_match(text, keywords):
     t = (text or '').lower()
     return any(k.lower() in t for k in keywords)
@@ -209,7 +198,7 @@ async def fetch_all_timeline(page, user_id, keywords, progress_path, dump_all_pa
     all_posts = {}
     if dump_all_path and os.path.exists(dump_all_path):
         try:
-            with open(dump_all_path, encoding='utf-8') as f:
+            with open(dump_all_path, encoding="utf-8") as f:
                 for e in json.load(f):
                     all_posts[e['id']] = e
             print(f"  ↪ 载入已有全量缓存：{len(all_posts)} 条")
@@ -263,7 +252,7 @@ async def fetch_all_timeline(page, user_id, keywords, progress_path, dump_all_pa
     start_page = 2
     if os.path.exists(progress_path):
         try:
-            with open(progress_path, encoding='utf-8') as f:
+            with open(progress_path, encoding="utf-8") as f:
                 prev = json.load(f)
             start_page = max(2, prev.get('next_page', 2))
             for e in prev.get('collected', []):
@@ -379,7 +368,7 @@ def parse_args():
 
 
 def filter_from_cache(cache_path, keywords, user_id):
-    with open(cache_path, encoding='utf-8') as f:
+    with open(cache_path, encoding="utf-8") as f:
         posts = json.load(f)
     out = []
     for p in posts:
@@ -444,4 +433,6 @@ async def main():
 
 
 if __name__ == '__main__':
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
     asyncio.run(main())
